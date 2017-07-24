@@ -1,0 +1,12 @@
+{
+    "name": "arthaleon/heroku",
+    "authors": [
+        {
+            "name": "Eduardo Cespedes",
+            "email": "lalocespedes@gmail.com"
+        }
+    ],
+    "require": {
+        "slim/slim": "^3.8"
+    }
+}
