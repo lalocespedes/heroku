@@ -28,7 +28,7 @@ $app->get('/', function (Request $request, Response $response) {
 
 $app->get('/clientes', function (Request $request, Response $response) {
 
-    $headers = $request->getHeaders();
+    $headers = $request->getHeader('HTTP_USER');
 
     dump($headers);
 });
