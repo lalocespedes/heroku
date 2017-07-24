@@ -9,11 +9,16 @@ $app = new \Slim\App;
 
 $app->get('/', function (Request $request, Response $response) {
 
-    var_dump(getenv('mysql_server'));
-
-    $response->getBody()->write("Que onda");
+    $response->getBody()->write("Api Start");
 
     return $response;
+});
+
+$app->get('/clientes', function (Request $request, Response $response) {
+
+    $headers = $request->getHeaders();
+
+    dump($headers);
 });
 
 $app->run();
