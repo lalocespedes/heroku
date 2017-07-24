@@ -18,6 +18,7 @@ $app->options('/{routes:.+}', function ($request, $response, $args) {
 });
 
 $app->add(function ($req, $res, $next) {
+    
     $response = $next($req, $res);
     return $response
             ->withHeader('Access-Control-Allow-Origin', '*')
@@ -25,27 +26,23 @@ $app->add(function ($req, $res, $next) {
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
 
-$app->add(function ($request, $response, $next) {
-
-    if ($response->hasHeader('HTTP_USER')) {
-        $headers = $request->getHeader('HTTP_USER');
-        putenv("DATABASE_NAME=$headers[0]");
-    }
-
-    return $next($request, $response);
-});
-
 $container = $app->getContainer();
 
 // Service factory for the ORM
 $container['db'] = function ($container) {
+
+    $request = $container['request'];
+
+    if ($request->hasHeader('HTTP_USER')) {
+        $headers = $request->getHeader('HTTP_USER');
+    }
 
     $capsule = new \Illuminate\Database\Capsule\Manager;
 
     $capsule->addConnection([
         'driver' => 'mysql',
         'host' => getenv('DATABASE_SERVER'),
-        'database' => getenv('DATABASE_NAME'),
+        'database' => $headers[0],
         'username' => getenv('DATABASE_USERNAME'),
         'password' => getenv('DATABASE_PASSWORD'),
         'charset'   => 'utf8',
