@@ -9,7 +9,7 @@ $app = new \Slim\App;
 
 $app->get('/', function (Request $request, Response $response) {
 
-    var_dump(ENV['mysql_server']);
+    var_dump(getenv('mysql_server'));
 
     $response->getBody()->write("Que onda");
 
