@@ -30,7 +30,7 @@ $app->get('/clientes', function (Request $request, Response $response) {
 
     $headers = $request->getHeader('HTTP_USER');
 
-    dump($headers);
+    dump($headers[0]);
 });
 
 $app->run();
