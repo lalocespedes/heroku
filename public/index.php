@@ -13,27 +13,6 @@ $configuration = [
 $c = new \Slim\Container($configuration);
 $app = new \Slim\App($c);
 
-$container = $app->getContainer();
-
-// Service factory for the ORM
-$container['db'] = function ($container) {
-
-    $capsule = new \Illuminate\Database\Capsule\Manager;
-
-    $capsule->addConnection([
-        'driver' => 'mysql',
-        'host' => getenv('DATABASE_SERVER'),
-        'database' => getenv('DATABASE_NAME'),
-        'username' => getenv('DATABASE_USERNAME'),
-        'password' => getenv('DATABASE_PASSWORD'),
-        'charset'   => 'utf8',
-        'collation' => 'utf8_unicode_ci',
-        'prefix'    => ''
-        ]);
-
-    return $capsule;
-};
-
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
@@ -55,6 +34,27 @@ $app->add(function ($request, $response, $next) {
 
     return $next($request, $response);
 });
+
+$container = $app->getContainer();
+
+// Service factory for the ORM
+$container['db'] = function ($container) {
+
+    $capsule = new \Illuminate\Database\Capsule\Manager;
+
+    $capsule->addConnection([
+        'driver' => 'mysql',
+        'host' => getenv('DATABASE_SERVER'),
+        'database' => getenv('DATABASE_NAME'),
+        'username' => getenv('DATABASE_USERNAME'),
+        'password' => getenv('DATABASE_PASSWORD'),
+        'charset'   => 'utf8',
+        'collation' => 'utf8_unicode_ci',
+        'prefix'    => ''
+        ]);
+
+    return $capsule;
+};
 
 $app->get('/', function (Request $request, Response $response) {
 
