@@ -5,7 +5,34 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require '../vendor/autoload.php';
 
-$app = new \Slim\App;
+$configuration = [
+    'settings' => [
+        'displayErrorDetails' => true,
+    ],
+];
+$c = new \Slim\Container($configuration);
+$app = new \Slim\App($c);
+
+$container = $app->getContainer();
+
+// Service factory for the ORM
+$container['db'] = function ($container) {
+
+    $capsule = new \Illuminate\Database\Capsule\Manager;
+
+    $capsule->addConnection([
+        'driver' => 'mysql',
+        'host' => getenv('DATABASE_SERVER'),
+        'database' => getenv('DATABASE_NAME'),
+        'username' => getenv('DATABASE_USERNAME'),
+        'password' => getenv('DATABASE_PASSWORD'),
+        'charset'   => 'utf8',
+        'collation' => 'utf8_unicode_ci',
+        'prefix'    => ''
+        ]);
+
+    return $capsule;
+};
 
 $app->options('/{routes:.+}', function ($request, $response, $args) {
     return $response;
@@ -19,6 +46,16 @@ $app->add(function ($req, $res, $next) {
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
 
+$app->add(function ($request, $response, $next) {
+
+    if ($response->hasHeader('HTTP_USER')) {
+        $headers = $request->getHeader('HTTP_USER');
+        putenv("DATABASE_NAME=$headers[0]");
+    }
+
+    return $next($request, $response);
+});
+
 $app->get('/', function (Request $request, Response $response) {
 
     $response->getBody()->write("Api Start");
@@ -28,9 +65,15 @@ $app->get('/', function (Request $request, Response $response) {
 
 $app->get('/clientes', function (Request $request, Response $response) {
 
-    $headers = $request->getHeader('HTTP_USER');
+    $clientes = App\Clientes::all();
 
-    dump($headers[0]);
+    $response = $response->withJson($clientes, 200);
+    return $response;
+
 });
+
+// Register the database connection with Eloquent
+$capsule = $app->getContainer()->get('db');
+$capsule->bootEloquent();
 
 $app->run();
